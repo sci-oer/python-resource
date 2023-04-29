@@ -10,21 +10,15 @@ LABEL org.opencontainers.image.title="MY_LANGUAGE Offline Course Resouce"
 LABEL org.opencontainers.image.description="This image is the MY_LANGUAGE specific image that can be used to act as an offline resource for students to contain all the instructional matrial and tools needed to do the course content"
 LABEL org.opencontainers.image.base.name="registry-1.docker.io/scioer/base-resource:sha-40bb95e"
 
-
 USER root
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
-    LANGUAGE_SPECIFIC_DEPENDANCIES \
-&& rm -rf /var/lib/apt/lists/*
-
-
-COPY --chown=${UID}:${UID} langdocs/ /opt/static/
+RUN PY_VERSION=$(python3 --version | cut -d' ' -f 2) \
+&& curl -L https://docs.python.org/ftp/python/doc/$PY_VERSION/python-$PY_VERSION-docs-html.zip --output pydocs.zip \
+&& unzip pydocs -d /opt/static/ \
+&& rm pydocs.zip
 
 # install jupyter dependancies
-RUN pip3 install LANGUAGE_SPECIFIC_JUPYTER_KERNEL
-
-# Install jupyter kernels
-RUN LANGUAGE_SPECIFIC_JUPYTER_KERNEL
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 USER ${UNAME}
 
